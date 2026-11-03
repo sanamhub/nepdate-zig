@@ -5,7 +5,6 @@ const c_flags = &.{
     "-DNEPDATE_STATIC",
     "-DNEPDATE_PATRO_STATIC",
     "-DNEPDATE_C_WITH_TM=0",
-    "-fno-sanitize-coverage=trace-cmp",
 };
 
 pub fn build(b: *std.Build) void {
