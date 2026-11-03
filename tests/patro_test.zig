@@ -4,6 +4,23 @@ const patro = @import("nepdate_patro");
 const common = @import("common.zig");
 const testing = std.testing;
 
+const Summary = struct {
+    days: i32,
+    tithi_days: i32,
+    holidays: i32,
+    event_days: i32,
+    events: i32,
+};
+
+fn loadSummary(allocator: std.mem.Allocator) !std.json.Parsed(Summary) {
+    return std.json.parseFromSlice(
+        Summary,
+        allocator,
+        @embedFile("../shared/spec/vectors/patro-summary.json"),
+        .{ .ignore_unknown_fields = true },
+    );
+}
+
 test "patro anchors" {
     const cases = [_]struct {
         date: []const u8,
@@ -32,9 +49,11 @@ test "patro anchors" {
 
 test "patro coverage and empty days" {
     const coverage = patro.coverage();
+    const summary = try loadSummary(testing.allocator);
+    defer summary.deinit();
     try common.expectDate("2077-01-01", coverage.start);
     try common.expectDate("2084-08-20", coverage.end);
-    try testing.expectEqual(@as(i32, 2793), coverage.length());
+    try testing.expectEqual(summary.value.days, coverage.length());
 
     var buffer: [16]patro.Event = undefined;
     for ([_][]const u8{ "2070-06-15", "2090-01-01" }) |text| {
@@ -46,6 +65,8 @@ test "patro coverage and empty days" {
 }
 
 test "patro summary counts" {
+    const summary = try loadSummary(testing.allocator);
+    defer summary.deinit();
     var buf: [16]patro.Event = undefined;
     var tithi_days: usize = 0;
     var holidays: usize = 0;
@@ -61,16 +82,18 @@ test "patro summary counts" {
         if (date.eql(patro.coverage().end)) break;
         date = try date.addDays(1);
     }
-    try testing.expectEqual(@as(usize, 2190), tithi_days);
-    try testing.expectEqual(@as(usize, 294), holidays);
-    try testing.expectEqual(@as(usize, 1671), event_days);
-    try testing.expectEqual(@as(usize, 3032), events);
+    try testing.expectEqual(@as(usize, @intCast(summary.value.tithi_days)), tithi_days);
+    try testing.expectEqual(@as(usize, @intCast(summary.value.holidays)), holidays);
+    try testing.expectEqual(@as(usize, @intCast(summary.value.event_days)), event_days);
+    try testing.expectEqual(@as(usize, @intCast(summary.value.events)), events);
 }
 
 test "public holidays are ascending and complete" {
+    const summary = try loadSummary(testing.allocator);
+    defer summary.deinit();
     const dates = try patro.publicHolidays(testing.allocator);
     defer testing.allocator.free(dates);
-    try testing.expectEqual(@as(usize, 294), dates.len);
+    try testing.expectEqual(@as(usize, @intCast(summary.value.holidays)), dates.len);
     var previous = dates[0];
     for (dates[1..]) |date| {
         try testing.expect(previous.lessThan(date));
