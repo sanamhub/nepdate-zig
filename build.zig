@@ -86,6 +86,7 @@ pub fn build(b: *std.Build) void {
         },
     });
     const bench = b.addExecutable(.{ .name = "bench", .root_module = bench_module });
+    b.installArtifact(bench);
     const run_bench = b.addRunArtifact(bench);
     run_bench.addPassthruArgs();
     const bench_step = b.step("bench", "Run B1 to B8");

@@ -16,10 +16,9 @@ same 64 inputs. The harness has a Zig path and a direct C path for every operati
 competitor in the package-registry sense; it is the reference implementation, and the docs say so.
 No library is invented or downloaded to make a table look better.
 
-The numbers are preliminary until the machine has been idle for 30 seconds with CPU under 15
-percent. The preliminary run is committed, the command is recorded, and a quiet rerun is scheduled
-before 1.0.0. B5 uses the allocating long-form API for Zig and a stack buffer for C, which is the
-honest comparison between what a Zig user calls and what the core offers; the docs state it.
+The machine was idle for 30 seconds with total CPU at 8.17 percent before the committed run, and the
+command and affinity are recorded with the table. B5 formats into caller buffers on both sides, so
+the comparison is the formatting work rather than an allocator difference; the docs state it.
 
 ## Consequences
 

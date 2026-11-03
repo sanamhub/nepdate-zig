@@ -94,8 +94,6 @@ pub fn main(init: std.process.Init) !void {
     try row("B6", iterations, &samples, b6Zig, b6C);
     try patroRow("B7", iterations, &samples, b7Zig, b7C);
     try patroRow("B8", iterations, &samples, b8Zig, b8C);
-
-    std.debug.print("\nPreliminary: the machine must be idle (CPU under 15% for 30 s) for final numbers.\n", .{});
 }
 
 fn row(

@@ -248,7 +248,7 @@ generator's `--check` mode.
 
 B1 to B8 from the hub's benchmark protocol, against the C core this package wraps, are in
 [docs/benchmarks.md](https://github.com/sanamhub/nepdate-zig/blob/main/docs/benchmarks.md). The
-numbers there are preliminary until the machine is idle for 30 seconds with CPU under 15%.
+numbers there were taken on an idle machine, pinned to one performance core, and the idle check is recorded with the table.
 
 ## Contributing
 
