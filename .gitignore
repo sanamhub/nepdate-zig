@@ -1,0 +1,16 @@
+# Zig build output
+.zig-cache/
+zig-cache/
+zig-out/
+dist/
+coverage/
+
+# Local notes, never committed
+AGENTS.md
+CLAUDE.md
+
+# IDEs
+/.vs/
+/.vscode/
+/.idea/
+*.iml
