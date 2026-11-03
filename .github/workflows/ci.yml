@@ -1,0 +1,138 @@
+# Every gate on Linux, macOS and Windows, the hub's shared-check, the coverage
+# floor, and the release dry run that a tag will repeat.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install Zig 0.17.0
+        run: source scripts/install-zig.sh
+      - name: Format, vendor, generators, docs, tests, examples
+        run: scripts/ci.sh
+      - name: Release-mode tests and cross-compile
+        run: |
+          set -euo pipefail
+          zig build test -Doptimize=ReleaseSafe
+          zig build cross
+
+  coverage:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install Zig 0.17.0
+        run: source scripts/install-zig.sh
+      - name: Install kcov
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends kcov
+      - name: Coverage floor
+        run: scripts/coverage.sh
+
+  version:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: read
+        run: |
+          set -euo pipefail
+          version="$(sed -n 's/.*\.version = "\(.*\)".*/\1/p' build.zig.zon)"
+          if [[ -z "$version" ]]; then
+            echo "::error::build.zig.zon has no .version"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  vendor-tag:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: The vendored files are the pinned C tag
+        run: |
+          set -euo pipefail
+          tag="v0.2.0-rc.1"
+          tmp="$RUNNER_TEMP/nepdate-c"
+          mkdir -p "$tmp"
+          curl -fsSL "https://github.com/sanamhub/nepdate-c/archive/refs/tags/${tag}.tar.gz" \
+            | tar -xz -C "$tmp" --strip-components=1
+          python3 tools/check_vendor.py --source "$tmp"
+
+  shared-check:
+    needs: version
+    permissions:
+      contents: read
+    uses: sanamhub/nepdate/.github/workflows/shared-check.yml@f636b7d476bc5959eb5689a950b73c8943860eef # main 2026-11-01
+    with:
+      sdk: zig
+      version: ${{ needs.version.outputs.version }}
+
+  release-dry-run:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Install Zig 0.17.0
+        run: source scripts/install-zig.sh
+      - name: Gates and source archive
+        run: |
+          set -euo pipefail
+          scripts/ci.sh
+          python3 tools/release_check.py --draft
+      - name: Keep the dry-run archive
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-dry-run
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7

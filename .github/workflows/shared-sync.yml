@@ -1,0 +1,21 @@
+name: shared-sync
+
+on:
+  schedule:
+    - cron: "47 3 * * 2"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    uses: sanamhub/nepdate/.github/workflows/shared-sync.yml@760298a4727467b41c9dd72b9a1469d361487c48 # main 2026-11-03
+    with:
+      regenerate: python tools/generate_shared.py
+    secrets:
+      SYNC_APP_PRIVATE_KEY: ${{ secrets.SYNC_APP_PRIVATE_KEY }}

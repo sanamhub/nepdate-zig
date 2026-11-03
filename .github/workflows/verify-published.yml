@@ -1,0 +1,108 @@
+# Fetch one released tag with `zig fetch` and run a sample on Linux, macOS and
+# Windows. There is no registry; this is the published-package check.
+name: verify-published
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: Released version, or latest for the newest GitHub release
+        required: false
+        default: latest
+        type: string
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Released version, or latest for the newest GitHub release
+        required: false
+        default: latest
+        type: string
+  schedule:
+    - cron: "41 6 * * 1"
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.resolve.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Resolve
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          version="${INPUT_VERSION:-latest}"
+          if [ "$version" = latest ]; then
+            tag="$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName 2>/dev/null || true)"
+            if [ -z "$tag" ]; then
+              echo "No release exists yet; nothing to verify."
+              echo "version=none" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            version="${tag#v}"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: \`$version\`" >> "$GITHUB_STEP_SUMMARY"
+
+  verify:
+    name: verify ${{ needs.resolve.outputs.version }}
+    if: needs.resolve.outputs.version != 'none'
+    needs: resolve
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install Zig 0.17.0
+        run: source scripts/install-zig.sh
+      - name: Fetch the tag and run the sample
+        env:
+          VERSION: ${{ needs.resolve.outputs.version }}
+        run: scripts/verify-published.sh "$VERSION"
+
+  report:
+    name: report
+    if: failure() && github.event_name == 'schedule'
+    needs: [resolve, verify]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Open or update the issue
+        env:
+          VERSION: ${{ needs.resolve.outputs.version }}
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          title="published-check: nepdate-zig $VERSION"
+          body="The scheduled published check failed for \`$VERSION\` (\`$RUN_URL\`)."
+          number="$(gh issue list --label published-check --state open --search "$title in:title" --json number --jq '.[0].number // empty')"
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --body "$body"
+          else
+            gh issue create --title "$title" --body "$body" --label published-check
+          fi

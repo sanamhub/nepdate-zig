@@ -1,0 +1,14 @@
+version: 2
+updates:
+  # Keeps the pinned action SHAs current. The cooldown gives a bad release two
+  # weeks to be pulled, the same rule the dev tools follow (ADR-0006). Zig has
+  # no package registry or package-manager ecosystem for Dependabot to watch;
+  # the C amalgamation is vendored at a pinned tag and checked by
+  # tools/check_vendor.py.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 14

@@ -1,0 +1,39 @@
+name: Bug report
+description: The library returns a wrong result, has an unexpected error, or does not compile.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: input
+    attributes:
+      label: Input
+      description: The call and its arguments, as a short Zig snippet.
+      placeholder: (try nepdate.Date.fromBs(2081, 4, 15)).write(&buffer)
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual
+      description: The result, the error value, or the compiler message.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: nepdate-zig version
+      placeholder: 1.0.0-rc.1
+    validations:
+      required: true
+  - type: input
+    id: zig
+    attributes:
+      label: Zig version and platform
+      placeholder: Zig 0.17.0, Windows x86_64
+    validations:
+      required: true
