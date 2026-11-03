@@ -106,7 +106,7 @@ jobs:
     needs: version
     permissions:
       contents: read
-    uses: sanamhub/nepdate/.github/workflows/shared-check.yml@f636b7d476bc5959eb5689a950b73c8943860eef # main 2026-11-01
+    uses: sanamhub/nepdate/.github/workflows/shared-check.yml@f71f3b6afe0366e16d76a0f4e0c00379cd7eaa92 # main 2026-11-04
     with:
       sdk: zig
       version: ${{ needs.version.outputs.version }}
