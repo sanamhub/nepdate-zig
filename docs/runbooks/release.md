@@ -42,4 +42,5 @@ This is the order the owner follows. Nothing here is done by CI except the tag r
    the 1.0.0 release with the hub line move, and add the `sdks` entry in `spec/versions.json` in the
    same release pull request. This port starts with no entry, which hub ADR-0008 allows.
 2. Add the release to the site's port list only when the line moves.
-3. Schedule the quiet benchmark rerun and replace the preliminary table.
+3. The benchmark table already records an idle, pinned run. Rerun it only if the reference machine or
+   the toolchain changes, and replace the table with the new idle check.
