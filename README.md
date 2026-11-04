@@ -237,6 +237,13 @@ every supported day and round-trip it through Gregorian and `YYYYMMDD`. The vend
 checked against the release tag by `tools/check_vendor.py`, and the shared data is checked by the
 generator's `--check` mode.
 
+The line-coverage gate runs kcov over the vendored C engine on Linux and fails below 75 percent;
+the final run is 84.19 percent. kcov cannot read the DWARF 5 line tables Zig 0.17 writes, so that
+number is not a Zig line percentage. In place of one, `tools/check_public_api.py` lists every
+public function in `src/` and fails if no test calls it; all 133 pass.
+[ADR-0009](docs/adr/0009-build-ci-and-fuzzing.md) records the DWARF 4, newer kcov and LLVM coverage
+attempts and why each was rejected.
+
 ## Documentation
 
 - [API reference](https://github.com/sanamhub/nepdate-zig/blob/main/docs/API.md)

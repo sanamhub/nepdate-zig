@@ -13,6 +13,7 @@ zig fmt --check build.zig test_root.zig src tests examples bench
 "$PYTHON" tools/check_vendor.py
 "$PYTHON" tools/generate_shared.py --check
 "$PYTHON" tools/check_docs.py
+"$PYTHON" tools/check_public_api.py
 "$PYTHON" tools/release_check.py --draft --no-archive
 
 zig build test

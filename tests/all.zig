@@ -11,6 +11,7 @@ comptime {
     _ = @import("patro_test.zig");
     _ = @import("fuzz_test.zig");
     _ = @import("catalog_test.zig");
+    _ = @import("public_api_test.zig");
 }
 
 test "core and patro load" {
