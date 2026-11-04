@@ -41,7 +41,9 @@ jobs:
           zig build cross
 
   coverage:
-    runs-on: ubuntu-latest
+    # kcov is not packaged in noble (24.04). Resolute (26.04) ships kcov 43, the
+    # version ADR-0009 names, and ubuntu-26.04 is a GA runner label.
+    runs-on: ubuntu-26.04
     defaults:
       run:
         shell: bash
