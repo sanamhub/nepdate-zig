@@ -37,13 +37,13 @@ pub const CalendarInfo = struct {
         return if (self.tithi) |value| value.english else "";
     }
 
-    pub fn eventsNp(self: CalendarInfo, out: []const []const u8) core.Error![]const []const u8 {
+    pub fn eventsNp(self: CalendarInfo, out: [][]const u8) core.Error![][]const u8 {
         if (out.len < self.events.len) return error.NoSpace;
         for (self.events, 0..) |event, i| out[i] = event.nepali;
         return out[0..self.events.len];
     }
 
-    pub fn eventsEn(self: CalendarInfo, out: []const []const u8) core.Error![]const []const u8 {
+    pub fn eventsEn(self: CalendarInfo, out: [][]const u8) core.Error![][]const u8 {
         if (out.len < self.events.len) return error.NoSpace;
         for (self.events, 0..) |event, i| out[i] = event.english;
         return out[0..self.events.len];
@@ -76,7 +76,7 @@ fn dateFromC(value: c.date) core.Date {
 }
 
 /// Looks up a day and returns its event array in the caller's buffer.
-pub fn infoInto(date: core.Date, event_buffer: []Event) core.Error!CalendarInfo {
+pub inline fn infoInto(date: core.Date, event_buffer: []Event) core.Error!CalendarInfo {
     var raw: c.patro_day_info = undefined;
     try core.checkStatusRaw(@backingInt(c.nepdate_patro_info(dateToC(date), &raw)));
     if (raw.event_count > event_buffer.len) return error.NoSpace;

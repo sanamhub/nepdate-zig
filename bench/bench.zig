@@ -7,6 +7,8 @@ const patro = @import("nepdate_patro");
 
 var bench_io: std.Io = undefined;
 
+const passes = 5;
+
 const RawDate = extern struct { value: i32 };
 const RawYmd = extern struct { year: i32, month: i32, day: i32 };
 const RawStatus = enum(c_int) { ok = 0 };
@@ -92,8 +94,8 @@ pub fn main(init: std.process.Init) !void {
     try row("B4", iterations, &samples, b4Zig, b4C);
     try row("B5", iterations, &samples, b5Zig, b5C);
     try row("B6", iterations, &samples, b6Zig, b6C);
-    try patroRow("B7", iterations, &samples, b7Zig, b7C);
-    try patroRow("B8", iterations, &samples, b8Zig, b8C);
+    try row("B7", iterations, &samples, b7Zig, b7C);
+    try row("B8", iterations, &samples, b8Zig, b8C);
 }
 
 fn row(
@@ -103,21 +105,36 @@ fn row(
     zig_fn: *const fn (Sample) anyerror!void,
     c_fn: *const fn (Sample) anyerror!void,
 ) !void {
-    const zig_ns = try measure(iterations, samples, zig_fn);
-    const c_ns = try measure(iterations, samples, c_fn);
-    std.debug.print("| {s} | {d:.1} | {d:.1} |\n", .{ id, zig_ns, c_ns });
+    const warm = @max(20, iterations / 20);
+    _ = try measure(warm, samples, zig_fn);
+    _ = try measure(warm, samples, c_fn);
+
+    var zig: [passes]f64 = undefined;
+    var c: [passes]f64 = undefined;
+    for (0..passes) |pass| {
+        // Alternate the order so a frequency change does not favour one side.
+        if (pass % 2 == 0) {
+            zig[pass] = try measure(iterations, samples, zig_fn);
+            c[pass] = try measure(iterations, samples, c_fn);
+        } else {
+            c[pass] = try measure(iterations, samples, c_fn);
+            zig[pass] = try measure(iterations, samples, zig_fn);
+        }
+    }
+    std.debug.print("| {s} | {d:.1} | {d:.1} |\n", .{ id, trimmedMean(&zig), trimmedMean(&c) });
 }
 
-fn patroRow(
-    id: []const u8,
-    iterations: u32,
-    samples: *const [64]Sample,
-    zig_fn: *const fn (Sample) anyerror!void,
-    c_fn: *const fn (Sample) anyerror!void,
-) !void {
-    const zig_ns = try measure(iterations, samples, zig_fn);
-    const c_ns = try measure(iterations, samples, c_fn);
-    std.debug.print("| {s} | {d:.1} | {d:.1} |\n", .{ id, zig_ns, c_ns });
+/// Drops the fastest and slowest pass so one scheduler hiccup cannot move the row.
+fn trimmedMean(values: *const [passes]f64) f64 {
+    var sum: f64 = 0;
+    var slowest: f64 = values[0];
+    var fastest: f64 = values[0];
+    for (values) |value| {
+        sum += value;
+        slowest = @max(slowest, value);
+        fastest = @min(fastest, value);
+    }
+    return (sum - slowest - fastest) / @as(f64, @floatFromInt(passes - 2));
 }
 
 fn measure(
@@ -215,6 +232,30 @@ fn b6C(sample: Sample) !void {
     var raw: RawDate = undefined;
     _ = nepdate_parse(text.ptr, text.len, &raw);
     std.mem.doNotOptimizeAway(raw);
+}
+
+const nepdate_patr_name = struct {
+    nepali: []const u8,
+    english: []const u8,
+};
+
+const nepdate_patr_info = struct {
+    tithi: ?nepdate_patr_name = null,
+    is_public_holiday: bool = false,
+    events: []const nepdate_patr_name = &.{},
+    owns_events: bool = false,
+};
+
+fn nameFromC(value: RawPatroName) nepdate_patr_name {
+    const np = if (value.np_length == 0)
+        ""
+    else
+        @as([*]const u8, @ptrCast(value.np))[0..value.np_length];
+    const en = if (value.en_length == 0)
+        ""
+    else
+        @as([*]const u8, @ptrCast(value.en))[0..value.en_length];
+    return .{ .nepali = np, .english = en };
 }
 
 fn b7Zig(sample: Sample) !void {

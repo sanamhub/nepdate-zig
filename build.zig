@@ -74,14 +74,27 @@ pub fn build(b: *std.Build) void {
     check_step.dependOn(&run_core_tests.step);
     check_step.dependOn(&run_patro_tests.step);
 
+    const bench_core = b.createModule(.{
+        .root_source_file = b.path("src/nepdate.zig"),
+        .target = target,
+        .optimize = .ReleaseFast,
+        .link_libc = true,
+    });
+    addC(bench_core, b);
+    const bench_patro = b.createModule(.{
+        .root_source_file = b.path("src/patro.zig"),
+        .target = target,
+        .optimize = .ReleaseFast,
+        .imports = &.{.{ .name = "nepdate", .module = bench_core }},
+    });
     const bench_module = b.createModule(.{
         .root_source_file = b.path("bench/bench.zig"),
         .target = target,
         .optimize = .ReleaseFast,
         .link_libc = true,
         .imports = &.{
-            .{ .name = "nepdate", .module = core },
-            .{ .name = "nepdate_patro", .module = patro },
+            .{ .name = "nepdate", .module = bench_core },
+            .{ .name = "nepdate_patro", .module = bench_patro },
         },
     });
     const bench = b.addExecutable(.{ .name = "bench", .root_module = bench_module });
