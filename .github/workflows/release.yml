@@ -1,5 +1,7 @@
 # One tag releases the source archive. There is no registry: the archive, its
 # SHA-256 and the hash a consumer writes into build.zig.zon are the release.
+# A manual dispatch runs preflight and CI only; it cannot hash a tag archive that
+# does not exist yet, so the archive and release jobs wait for the tag push.
 name: release
 
 on:
@@ -73,6 +75,9 @@ jobs:
 
   archive:
     needs: [preflight, ci]
+    # The archive is the tag's tarball, so only a tag push can build and hash it. A dispatch is
+    # preflight and CI only, which is what the dry run needs before the tag exists.
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
