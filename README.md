@@ -16,10 +16,10 @@ formatting, parsing, ranges, fiscal years and the patro. Part of the NepDate fam
 and spec live in the hub [`sanamhub/nepdate`](https://github.com/sanamhub/nepdate); the C# original
 is [NepDate](https://github.com/RajuPrasai/NepDate).
 
-> **Status:** `1.0.0-rc.1` is the first release of this port, and it is not on a registry yet. The
-> API is listed in [docs/API.md](https://github.com/sanamhub/nepdate-zig/blob/main/docs/API.md) and
-> may still change before 1.0.0. Patro data (tithi, holidays, events) is informational, not an
-> official calendar.
+> **Status:** `1.0.0-rc.1`, the release candidate for the Zig package. The API is listed in
+> [docs/API.md](https://github.com/sanamhub/nepdate-zig/blob/main/docs/API.md) and is stable from
+> 1.0 (hub ADR-0009). Patro data (tithi, holidays, events) is informational, not an official
+> calendar.
 
 One Zig package with two modules, released together from one tag:
 
