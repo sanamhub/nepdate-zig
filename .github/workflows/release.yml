@@ -188,7 +188,7 @@ jobs:
             "dist/SHA256SUMS" \
             "dist/nepdate-zig-${VERSION}.hash" \
             "dist/nepdate-zig-${VERSION}.dependency" \
-            --verify-tag --title "nepdate-zig $VERSION" --notes-file "$notes" \
+            --verify-tag --title "$GITHUB_REF_NAME" --notes-file "$notes" \
             "${prerelease[@]}"
 
   verify-published:
