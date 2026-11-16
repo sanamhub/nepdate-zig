@@ -14,7 +14,7 @@ read-only. A wrong date, holiday or tithi is a data issue: report it in the hub,
 
 ## Setup
 
-You need Zig 0.17.0. The repository has no package dependency; the core and the patro are two
+You need Zig 0.17.1 (0.17.0 is the declared minimum). The repository has no package dependency; the core and the patro are two
 modules of one package and compile the vendored C amalgamation directly.
 
 ```sh
