@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://github.com/sanamhub/nepdate-zig/actions/workflows/ci.yml"><img src="https://github.com/sanamhub/nepdate-zig/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://github.com/sanamhub/nepdate-zig/releases"><img src="https://img.shields.io/github/v/release/sanamhub/nepdate-zig?include_prereleases&label=release" alt="Latest release"></a>
-  <img src="https://img.shields.io/badge/Zig-0.17.0-F7A41D?logo=zig&logoColor=black" alt="Zig 0.17.0">
+  <img src="https://img.shields.io/badge/Zig-0.17-F7A41D?logo=zig&logoColor=black" alt="Zig 0.17">
   <a href="https://github.com/sanamhub/nepdate-zig/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
 </p>
 
@@ -221,7 +221,7 @@ in ascending order.
 
 ## Supported versions and platforms
 
-Zig 0.17.0 is the only supported compiler. The C amalgamation cross-compiles to `x86_64` and
+Zig 0.17 is the only supported compiler line; CI builds with 0.17.1. The C amalgamation cross-compiles to `x86_64` and
 `aarch64` on Linux, macOS and Windows; CI runs the tests natively on all three systems. The package
 declares `minimum_zig_version = "0.17.0"`.
 
