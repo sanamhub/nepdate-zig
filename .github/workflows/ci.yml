@@ -40,6 +40,24 @@ jobs:
           zig build test -Doptimize=ReleaseSafe
           zig build cross
 
+  oldest-zig:
+    # build.zig.zon sets minimum_zig_version to 0.17.0, so that release has to keep building.
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install Zig 0.17.0
+        run: |
+          export ZIG_VERSION=0.17.0
+          source scripts/install-zig.sh
+      - name: Tests
+        run: zig build test
+
   coverage:
     # kcov is not packaged in noble (24.04). Resolute (26.04) ships kcov 43, the
     # version ADR-0009 names, and ubuntu-26.04 is a GA runner label.
