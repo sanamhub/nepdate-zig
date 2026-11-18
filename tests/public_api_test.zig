@@ -93,7 +93,7 @@ test "bulk conversion aliases" {
     const round_trip = try core.batchToEnglishDates(converted, &back);
     try std.testing.expectEqual(ad[0].year, round_trip[0].year);
     try std.testing.expectEqual(ad[1].month, round_trip[1].month);
-    try std.testing.expectEqualStrings("1.0.0-rc.1", core.version);
+    try std.testing.expectEqualStrings("1.0.0", core.version);
     try std.testing.expect(core.vendorVersion().len > 0);
 }
 
