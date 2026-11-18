@@ -805,7 +805,7 @@ pub const RangeDayIterator = range.DayIterator;
 pub const FiscalYear = fiscal.FiscalYear;
 
 /// The version of this package, not of the vendored C core.
-pub const version = "1.0.0-rc.1";
+pub const version = "1.0.0";
 
 /// The version string compiled into the vendored C amalgamation.
 pub fn vendorVersion() []const u8 {

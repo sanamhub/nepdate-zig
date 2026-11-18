@@ -35,7 +35,7 @@ Zig has no package registry. Fetch the release archive into your project and let
 hash in `build.zig.zon`:
 
 ```sh
-zig fetch --save https://github.com/sanamhub/nepdate-zig/archive/refs/tags/v1.0.0-rc.1.tar.gz
+zig fetch --save https://github.com/sanamhub/nepdate-zig/archive/refs/tags/v1.0.0.tar.gz
 ```
 
 Then add both modules to your executable in `build.zig`:
