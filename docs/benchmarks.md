@@ -50,21 +50,21 @@ core or faster.
 
 The wrapper beside C# NepDate (.NET 10 column of the hub's
 [`docs/benchmarks/dotnet.md`](https://github.com/sanamhub/nepdate/blob/main/docs/benchmarks/dotnet.md),
-same machine, 2026-11-16):
+same machine, 2026-11-20):
 
 | ID | Zig wrapper ns/op | C# NepDate ns/op |
 |---|---:|---:|
-| B1 | 11.2 | 13.27 |
-| B2 | 5.1 | 18.70 |
-| B3 | 1.4 | 20.06 |
-| B4 | 2.9 | 19.30 |
-| B5 | 37.5 | 139.04 |
-| B6 | 42.7 | 21.13 |
-| B7 | 7.6 | 48.63 |
-| B8 | 278.8 | 3,274.50 |
+| B1 | 11.2 | 5.60 |
+| B2 | 5.1 | 5.90 |
+| B3 | 1.4 | 2.79 |
+| B4 | 2.9 | 2.45 |
+| B5 | 37.5 | 29.96 |
+| B6 | 42.7 | 7.28 |
+| B7 | 7.6 | 16.46 |
+| B8 | 278.8 | 633.13 |
 
-The wrapper is faster than C# NepDate on every row except B6, the strict parse, where it is 2.0
-times slower.
+The wrapper is faster than C# NepDate on B2, B3, B7 and B8. It is slower on B1 (2.0 times), B4
+(1.2 times), B5 (1.3 times) and B6, the strict parse (5.9 times).
 
 B1 is BS to AD, B2 is AD to BS, B3 adds 1000 days, B4 adds 13 months with clamp, B5 is the Nepali
 long format with weekday, B6 is a strict parse, B7 is one patro lookup, and B8 is the month grid.
