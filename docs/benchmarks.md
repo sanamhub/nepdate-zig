@@ -12,10 +12,8 @@ five-pass trimmed mean, so a frequency change cannot favour one side; the ratios
 read. The process was pinned to logical CPU 2 with affinity mask `0x4`. The raw output of the three
 runs is in [`raw/2026-11-16/`](raw/2026-11-16/).
 
-BENCHMARK section 6 gives Zig no fixed target: "C, Dart, PHP, Zig: no fixed target: the numbers are
-reported beside C# NepDate and the selected competitors". The comparison here is with the C core the
-wrapper calls, because no independent Zig library passes the bar in
-[competitors.md](competitors.md); the C# NepDate figures of the hub are in the second table.
+The comparison here is with the C core the wrapper calls, because no independent Zig library passes
+the bar in [competitors.md](competitors.md).
 
 ## Machine and toolchain
 
@@ -48,23 +46,7 @@ Three runs at 5000 iterations gave B8 at 278.8, 275.5 and 276.4 ns for the wrapp
 and 261.2 ns for the core (ratios 1.06, 1.07 and 1.06). Every row is within 10 percent of the C
 core or faster.
 
-The wrapper beside C# NepDate (.NET 10 column of the hub's
-[`docs/benchmarks/dotnet.md`](https://github.com/sanamhub/nepdate/blob/main/docs/benchmarks/dotnet.md),
-same machine, 2026-11-16):
-
-| ID | Zig wrapper ns/op | C# NepDate ns/op |
-|---|---:|---:|
-| B1 | 11.2 | 13.27 |
-| B2 | 5.1 | 18.70 |
-| B3 | 1.4 | 20.06 |
-| B4 | 2.9 | 19.30 |
-| B5 | 37.5 | 139.04 |
-| B6 | 42.7 | 21.13 |
-| B7 | 7.6 | 48.63 |
-| B8 | 278.8 | 3,274.50 |
-
-The wrapper is faster than C# NepDate on every row except B6, the strict parse, where it is 2.0
-times slower.
+The comparison with C# NepDate, the original library, and the target check from `spec/BENCHMARK.md` section 6 are in the hub: [performance page](https://nepdate.com/docs/project/performance/).
 
 B1 is BS to AD, B2 is AD to BS, B3 adds 1000 days, B4 adds 13 months with clamp, B5 is the Nepali
 long format with weekday, B6 is a strict parse, B7 is one patro lookup, and B8 is the month grid.
